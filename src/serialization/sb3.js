@@ -1064,6 +1064,10 @@ const parseScratchObject = function (object, runtime, extensions, zip, assets) {
     if (object.hasOwnProperty('isStage')) {
         target.isStage = object.isStage;
     }
+    target.deviceType = "deviceType_sb3";
+    if (object.hasOwnProperty('deviceType')) {
+        target.deviceType = object.deviceType;
+    }
     if (object.hasOwnProperty('targetPaneOrder')) {
         // Temporarily store the 'targetPaneOrder' property
         // so that we can correctly order sprites in the target pane.
@@ -1255,8 +1259,12 @@ const deserialize = function (json, runtime, zip, isSingleSprite) {
         .then(assets => Promise.all(targetObjects
             .map((target, index) =>
                 parseScratchObject(target, runtime, extensions, zip, assets[index]))))
+        .then(targets => {
+            return targets;
+        })
         .then(targets => targets // Re-sort targets back into original sprite-pane ordering
             .map((t, i) => {
+                
                 // Add layer order property to deserialized targets.
                 // This property is used to initialize executable targets in
                 // the correct order and is deleted in VM's installTargets function
@@ -1273,12 +1281,13 @@ const deserialize = function (json, runtime, zip, isSingleSprite) {
         .then(targets => replaceUnsafeCharsInVariableIds(targets))
         .then(targets => {
             monitorObjects.map(monitorDesc => deserializeMonitor(monitorDesc, runtime, targets, extensions));
+
             return targets;
         })
-        .then(targets => ({
-            targets,
-            extensions
-        }));
+        .then(targets => {
+
+            return ({targets,extensions});
+        } );
 };
 
 module.exports = {

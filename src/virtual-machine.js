@@ -475,6 +475,8 @@ class VirtualMachine extends EventEmitter {
         // Clear the current runtime
         this.clear();
 
+        console.log("----------scratch-vm-------------");
+
         const runtime = this.runtime;
         const deserializePromise = function () {
             const projectVersion = projectJSON.projectVersion;
@@ -489,8 +491,9 @@ class VirtualMachine extends EventEmitter {
             return Promise.reject('Unable to verify Scratch Project version.');
         };
         return deserializePromise()
-            .then(({targets, extensions}) =>
-                this.installTargets(targets, extensions, true));
+            .then(({targets, extensions}) => {
+                this.installTargets(targets, extensions, true);
+            });
     }
 
     /**
@@ -511,6 +514,8 @@ class VirtualMachine extends EventEmitter {
         });
 
         targets = targets.filter(target => !!target);
+
+        console.log("--install targsts---", targets[0].deviceType);
 
         return Promise.all(extensionPromises).then(() => {
             targets.forEach(target => {
@@ -1192,6 +1197,11 @@ class VirtualMachine extends EventEmitter {
         const target = this.runtime.getTargetById(targetId);
         if (target) {
             this.editingTarget = target;
+
+            for (const key in this.editingTarget) {
+                console.log("setEditingTarget: ", key );
+            }
+
             // Emit appropriate UI updates.
             this.emitTargetsUpdate(false /* Don't emit project change */);
             this.emitWorkspaceUpdate();

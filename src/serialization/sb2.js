@@ -677,6 +677,12 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
             target.variables[newVariable.id] = newVariable;
         }
     }
+
+    target.deviceType = "deviceType_sb2";
+    if (object.hasOwnProperty('deviceType')) {
+        target.deviceType = object.deviceType;
+    }
+
     if (object.hasOwnProperty('scratchX')) {
         target.x = object.scratchX;
     }
