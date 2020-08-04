@@ -72,6 +72,12 @@ class RenderedTarget extends Target {
         this.isStage = false;
 
         /**
+         * device type.
+         * @type {string}
+         */
+        this.deviceType = '';
+
+        /**
          * Scratch X coordinate. Currently should range from -240 to 240.
          * @type {Number}
          */
@@ -1068,6 +1074,7 @@ class RenderedTarget extends Target {
             id: this.id,
             name: this.getName(),
             isStage: this.isStage,
+            deviceType: this.deviceType,
             x: this.x,
             y: this.y,
             size: this.size,

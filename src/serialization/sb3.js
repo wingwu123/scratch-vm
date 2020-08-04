@@ -1064,7 +1064,7 @@ const parseScratchObject = function (object, runtime, extensions, zip, assets) {
     if (object.hasOwnProperty('isStage')) {
         target.isStage = object.isStage;
     }
-    target.deviceType = "deviceType_sb3";
+    
     if (object.hasOwnProperty('deviceType')) {
         target.deviceType = object.deviceType;
     }

@@ -1879,6 +1879,7 @@ class Runtime extends EventEmitter {
      * @param {Target} target target to add
      */
     addTarget (target) {
+
         this.targets.push(target);
         this.executableTargets.push(target);
     }

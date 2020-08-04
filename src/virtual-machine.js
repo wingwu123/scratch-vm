@@ -492,6 +492,15 @@ class VirtualMachine extends EventEmitter {
         };
         return deserializePromise()
             .then(({targets, extensions}) => {
+
+                for (const key in targets) {
+                    if (targets.hasOwnProperty(key)) {
+                        console.log("deserializeProject ", key);
+                        console.log("key " + key, targets[key].deviceType, targets[key].name);
+                        
+                    }
+                }
+
                 this.installTargets(targets, extensions, true);
             });
     }
@@ -515,7 +524,13 @@ class VirtualMachine extends EventEmitter {
 
         targets = targets.filter(target => !!target);
 
-        console.log("--install targsts---", targets[0].deviceType);
+        for (const key in targets) {
+            if (targets.hasOwnProperty(key)) {
+
+                console.log("--install targsts---", targets[key].deviceType);                
+            }
+        }
+
 
         return Promise.all(extensionPromises).then(() => {
             targets.forEach(target => {
@@ -536,6 +551,13 @@ class VirtualMachine extends EventEmitter {
                 this.editingTarget = targets[1];
             } else {
                 this.editingTarget = targets[0];
+            }
+
+            for (const key in this.editingTarget) {
+                if (this.editingTarget.hasOwnProperty(key)) {
+    
+                    console.log("--install targsts this.editingTarget ---", key);                
+                }
             }
 
             if (!wholeProject) {
@@ -1198,9 +1220,11 @@ class VirtualMachine extends EventEmitter {
         if (target) {
             this.editingTarget = target;
 
+            /*
             for (const key in this.editingTarget) {
                 console.log("setEditingTarget: ", key );
             }
+            */
 
             // Emit appropriate UI updates.
             this.emitTargetsUpdate(false /* Don't emit project change */);
@@ -1313,7 +1337,16 @@ class VirtualMachine extends EventEmitter {
      * Defaults to true.
      */
     emitTargetsUpdate (triggerProjectChange) {
+
         if (typeof triggerProjectChange === 'undefined') triggerProjectChange = true;
+
+        for (const key in this.runtime.targets) {
+            if (this.runtime.targets.hasOwnProperty(key)) {
+
+                console.log("this.runtime.targets deviceType [" + this.runtime.targets[key].deviceType + "]");
+            }
+        }
+
         this.emit('targetsUpdate', {
             // [[target id, human readable target name], ...].
             targetList: this.runtime.targets
@@ -1321,7 +1354,23 @@ class VirtualMachine extends EventEmitter {
                     // Don't report clones.
                     target => !target.hasOwnProperty('isOriginal') || target.isOriginal
                 ).map(
-                    target => target.toJSON()
+                    target => {
+                        let json = target.toJSON();
+
+                        for (const key in target) {
+                            if (target.hasOwnProperty(key)) {
+                                console.log("-----target-----", key);
+                            }
+                        }
+
+                        for (const key in json) {
+                            if (json.hasOwnProperty(key)) {
+                                console.log("-----json-----", key);
+                            }
+                        }
+
+                        return json;
+                    } 
                 ),
             // Currently editing target id.
             editingTarget: this.editingTarget ? this.editingTarget.id : null
