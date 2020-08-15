@@ -392,6 +392,11 @@ class Runtime extends EventEmitter {
          * @type {function}
          */
         this.removeCloudVariable = this._initializeRemoveCloudVariable(newCloudDataManager);
+
+        /**
+         * 
+         */
+        this.code = '';
     }
 
     /**

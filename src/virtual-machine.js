@@ -25,6 +25,8 @@ const {loadSound} = require('./import/load-sound.js');
 const {serializeSounds, serializeCostumes} = require('./serialization/serialize-assets');
 require('canvas-toBlob');
 
+const lodash = require('lodash');
+
 const RESERVED_NAMES = ['_mouse_', '_stage_', '_edge_', '_myself_', '_random_'];
 
 const CORE_EXTENSIONS = [
@@ -38,6 +40,8 @@ const CORE_EXTENSIONS = [
     // 'variables',
     // 'myBlocks'
 ];
+
+const CODE_FILE_NAME = 'code.c';
 
 /**
  * Handles connections between blocks, stage, and extensions.
@@ -339,7 +343,17 @@ class VirtualMachine extends EventEmitter {
             });
 
         return validationPromise
-            .then(validatedInput => this.deserializeProject(validatedInput[0], validatedInput[1]))
+            .then(validatedInput => {
+                this.deserializeProject(validatedInput[0], validatedInput[1]);
+                if(validatedInput[1]) {
+
+                    let zipObject = validatedInput[1].file(CODE_FILE_NAME);
+
+                    return zipObject.async('string').then(data => {
+                        this.runtime.code = data;
+                    });
+                }
+            })
             .then(() => this.runtime.emitProjectLoaded())
             .catch(error => {
                 // Intentionally rejecting here (want errors to be handled by caller)
@@ -381,6 +395,7 @@ class VirtualMachine extends EventEmitter {
 
         // Put everything in a zip file
         zip.file('project.json', projectJson);
+        zip.file(CODE_FILE_NAME, this.runtime.code);
         this._addFileDescsToZip(soundDescs.concat(costumeDescs), zip);
 
         return zip.generateAsync({
@@ -475,8 +490,6 @@ class VirtualMachine extends EventEmitter {
         // Clear the current runtime
         this.clear();
 
-        console.log("----------scratch-vm-------------");
-
         const runtime = this.runtime;
         const deserializePromise = function () {
             const projectVersion = projectJSON.projectVersion;
@@ -492,14 +505,6 @@ class VirtualMachine extends EventEmitter {
         };
         return deserializePromise()
             .then(({targets, extensions}) => {
-
-                for (const key in targets) {
-                    if (targets.hasOwnProperty(key)) {
-                        console.log("deserializeProject ", key);
-                        console.log("key " + key, targets[key].deviceType, targets[key].name);
-                        
-                    }
-                }
 
                 this.installTargets(targets, extensions, true);
             });
@@ -524,14 +529,6 @@ class VirtualMachine extends EventEmitter {
 
         targets = targets.filter(target => !!target);
 
-        for (const key in targets) {
-            if (targets.hasOwnProperty(key)) {
-
-                console.log("--install targsts---", targets[key].deviceType);                
-            }
-        }
-
-
         return Promise.all(extensionPromises).then(() => {
             targets.forEach(target => {
                 this.runtime.addTarget(target);
@@ -548,16 +545,19 @@ class VirtualMachine extends EventEmitter {
 
             // Select the first target for editing, e.g., the first sprite.
             if (wholeProject && (targets.length > 1)) {
-                this.editingTarget = targets[1];
+
+                let deviceTarget = lodash.find(targets, function(t) { return t.deviceType && t.deviceType != ''; });
+
+                if(!!deviceTarget)
+                {
+                    this.editingTarget = deviceTarget;
+                }
+                else{
+                    this.editingTarget = targets[1];
+                }
+
             } else {
                 this.editingTarget = targets[0];
-            }
-
-            for (const key in this.editingTarget) {
-                if (this.editingTarget.hasOwnProperty(key)) {
-    
-                    console.log("--install targsts this.editingTarget ---", key);                
-                }
             }
 
             if (!wholeProject) {
@@ -1340,13 +1340,6 @@ class VirtualMachine extends EventEmitter {
 
         if (typeof triggerProjectChange === 'undefined') triggerProjectChange = true;
 
-        for (const key in this.runtime.targets) {
-            if (this.runtime.targets.hasOwnProperty(key)) {
-
-                console.log("this.runtime.targets deviceType [" + this.runtime.targets[key].deviceType + "]");
-            }
-        }
-
         this.emit('targetsUpdate', {
             // [[target id, human readable target name], ...].
             targetList: this.runtime.targets
@@ -1356,18 +1349,6 @@ class VirtualMachine extends EventEmitter {
                 ).map(
                     target => {
                         let json = target.toJSON();
-
-                        for (const key in target) {
-                            if (target.hasOwnProperty(key)) {
-                                console.log("-----target-----", key);
-                            }
-                        }
-
-                        for (const key in json) {
-                            if (json.hasOwnProperty(key)) {
-                                console.log("-----json-----", key);
-                            }
-                        }
 
                         return json;
                     } 

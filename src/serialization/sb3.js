@@ -447,6 +447,7 @@ const serializeTarget = function (target, extensions) {
     let targetExtensions = [];
     obj.isStage = target.isStage;
     obj.name = obj.isStage ? 'Stage' : target.name;
+    obj.deviceType = target.deviceType;
     const vars = serializeVariables(target.variables);
     obj.variables = vars.variables;
     obj.lists = vars.lists;
@@ -1067,7 +1068,9 @@ const parseScratchObject = function (object, runtime, extensions, zip, assets) {
     
     if (object.hasOwnProperty('deviceType')) {
         target.deviceType = object.deviceType;
+        target.setVisible(!(target.deviceType && target.deviceType != ''));   
     }
+
     if (object.hasOwnProperty('targetPaneOrder')) {
         // Temporarily store the 'targetPaneOrder' property
         // so that we can correctly order sprites in the target pane.
