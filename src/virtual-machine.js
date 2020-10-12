@@ -27,6 +27,10 @@ require('canvas-toBlob');
 
 const lodash = require('lodash');
 
+const PortProxy = require('./blocks/wobot/comm/port_proxy');
+
+const WobotSystem = require('./blocks/wobot/wobot_system.js');
+
 const RESERVED_NAMES = ['_mouse_', '_stage_', '_edge_', '_myself_', '_random_'];
 
 const CORE_EXTENSIONS = [
@@ -92,6 +96,7 @@ class VirtualMachine extends EventEmitter {
         this.runtime.on(Runtime.PROJECT_RUN_START, () => {
             this.emit(Runtime.PROJECT_RUN_START);
         });
+        
         this.runtime.on(Runtime.PROJECT_RUN_STOP, () => {
             this.emit(Runtime.PROJECT_RUN_STOP);
         });
@@ -167,6 +172,8 @@ class VirtualMachine extends EventEmitter {
         this.flyoutBlockListener = this.flyoutBlockListener.bind(this);
         this.monitorBlockListener = this.monitorBlockListener.bind(this);
         this.variableListener = this.variableListener.bind(this);
+
+        this.system = new WobotSystem(this.runtime);
     }
 
     /**
@@ -211,6 +218,8 @@ class VirtualMachine extends EventEmitter {
      */
     stopAll () {
         this.runtime.stopAll();
+
+        this.system.stop_module(0);
     }
 
     /**
@@ -345,6 +354,19 @@ class VirtualMachine extends EventEmitter {
         return validationPromise
             .then(validatedInput => {
                 this.deserializeProject(validatedInput[0], validatedInput[1]);
+                let defaultCode = [
+                    '#include "whalesbot.h"',
+                    'void setup() {',
+                    '  board_init();',
+                    '}',
+                    '',
+                    'void _setup(){',
+                    '',
+                    '}',
+                    'void _loop(){',
+                    '',
+                    '}'].join('\n');
+                this.runtime.code = defaultCode;
                 if(validatedInput[1]) {
 
                     let zipObject = validatedInput[1].file(CODE_FILE_NAME);
@@ -1220,12 +1242,6 @@ class VirtualMachine extends EventEmitter {
         if (target) {
             this.editingTarget = target;
 
-            /*
-            for (const key in this.editingTarget) {
-                console.log("setEditingTarget: ", key );
-            }
-            */
-
             // Emit appropriate UI updates.
             this.emitTargetsUpdate(false /* Don't emit project change */);
             this.emitWorkspaceUpdate();
@@ -1579,6 +1595,11 @@ class VirtualMachine extends EventEmitter {
      */
     configureScratchLinkSocketFactory (factory) {
         this.runtime.configureScratchLinkSocketFactory(factory);
+    }
+
+    setPortChannel(channel) {
+        console.info("VirtualMachine setPortChannel");
+        PortProxy.setChannel(channel);
     }
 }
 

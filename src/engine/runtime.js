@@ -39,7 +39,10 @@ const defaultBlockPackages = {
     scratch3_sound: require('../blocks/scratch3_sound'),
     scratch3_sensing: require('../blocks/scratch3_sensing'),
     scratch3_data: require('../blocks/scratch3_data'),
-    scratch3_procedures: require('../blocks/scratch3_procedures')
+    scratch3_procedures: require('../blocks/scratch3_procedures'),
+    wobot_motion: require('../blocks/wobot/wobot_motion'),
+    wobot_looks: require('../blocks/wobot/wobot_looks'),
+    wobot_sensing:require('../blocks/wobot/wobot_sensor')
 };
 
 const defaultExtensionColors = ['#0FBD8C', '#0DA57A', '#0B8E69'];
