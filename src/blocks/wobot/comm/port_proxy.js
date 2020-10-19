@@ -14,29 +14,29 @@ class PortProxy {
 
     setChannel(channel) {
         this.channel = channel;
-        console.info("PortProxy setChannel ");
+        //console.info("PortProxy setChannel ");
     }
 
     wirte (cmd) {
-        console.info("PortProxy wirte ", this.wirteCount++);
+        //console.info("PortProxy wirte ", this.wirteCount++);
         let timer = new Timer();
         timer.start();
         let done = false;
 
         this.channel.wirte(cmd).then(() =>{
             done = true;
-            console.info("PortProxy wirte done ", done, timer.timeElapsed());
+            //console.info("PortProxy wirte done ", done, timer.timeElapsed());
         })
         .catch(err => {
             done = true;
-            console.info("PortProxy wirte done ", done, err);
+            //console.info("PortProxy wirte done ", done, err);
         });
         
         while(!done && timer.timeElapsed() < 200){
 
         }
 
-        console.info("PortProxy wirte done ", done, timer.timeElapsed());
+        //console.info("PortProxy wirte done ", done, timer.timeElapsed());
     }
 
     request(cmd, timeout = 0, util = null) {
@@ -64,13 +64,13 @@ class PortProxy {
 
     getData() {
         let data = this.channel.getData();
-        console.info("PortProxy getData ", data, this.readCount++);
+        //console.info("PortProxy getData ", data, this.readCount++);
         return data;
     }
 
     waitFirst(util) {
         let ret = typeof(util.stackFrame.timer) == "undefined";
-        console.info("waitFirst", util.stackFrame.timer, ret);
+        //console.info("waitFirst", util.stackFrame.timer, ret);
         return ret;
     }
 

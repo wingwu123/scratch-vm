@@ -54,6 +54,7 @@ let Device = {
     SET_ELECTROMAGNET : 58, //电磁铁
     SET_INTEGRATED_LED :59, // 设置集成LED 灯
     SET_LED_STRIP :60, //设置LED 灯带
+    SET_BEEP :61, //设置 蜂鸣器
 
     //sensor
     GRAYSCALE_SENSOR_DETECTED_LINE : 201, //单灰度传感器是否检测到线
@@ -152,8 +153,8 @@ class Commands {
     //设置步进电机
     set_step_motor(port, power, step) {
 
-        let args = Buffer.from([port, power, 0, 0]);
-        args.writeInt16LE(step, 2);
+        let args = Buffer.from([port, power, 0, 0, 0, 0]);
+        args.writeInt32LE(step, 2);
 
         return this.genPacket(Action.RUN, Device.STEPPER, new Int8Array(args.buffer));
     }
@@ -234,6 +235,11 @@ class Commands {
     // 设置LED灯带
     set_led_strip(port, Id, R, G, B) {
         return this.genPacket(Action.RUN, Device.SET_LED_STRIP, [port, Id, R, G, B]);
+    }
+
+    // 设置beep
+    set_beep(pitch, len) {
+        return this.genPacket(Action.RUN, Device.SET_BEEP, [pitch, len]);
     }
 
     /***************************************************

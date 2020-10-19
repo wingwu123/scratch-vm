@@ -34,8 +34,9 @@ class WobotLooksBlocks {
 
             looks_integrated_led: this.set_Integrated_led,
             looks_led_strip: this.set_led_strip,
+            looks_beep: this.set_beep,
 
-            motion_more: () => {}
+            looks_more: () => {}
         };
     }
 
@@ -144,6 +145,16 @@ class WobotLooksBlocks {
     set_led_strip(args, util) {
         let data =  Commands.set_led_strip(args.PORT, args.LED_ID,args.R, args.G, args.B);
         PortProxy.request(data);
+    }
+
+    // 设置beep
+    set_beep(args, util) {
+        let data =  Commands.set_beep(args.PITCH, args.LEN);
+
+        let mapTime = [0, 125, 250, 500, 1000];
+        let t = mapTime[ Math.min(Math.max(1,  args.LEN), 4)];
+            
+        PortProxy.request(data, t, util);
     }
 }
 
